@@ -56,6 +56,8 @@ namespace MiniSearchEngine.Engine
                     sum_relevant++;
             }
 
+            if (relevant.Count == 0) return 0;
+
             return (double)sum_relevant / (double)relevant.Count;
         }
 
@@ -75,6 +77,8 @@ namespace MiniSearchEngine.Engine
                 if (relevant.Contains(entry.Key))
                     sum_relevant++;
             }
+
+            if (result.Count == 0) return 0;
 
             return (double)sum_relevant / (double)result.Count;
         }
@@ -99,6 +103,8 @@ namespace MiniSearchEngine.Engine
                 }
             }
 
+            if (number_relevant == 0) return 0;
+     
             return sum_precision / number_relevant;
         }
 
