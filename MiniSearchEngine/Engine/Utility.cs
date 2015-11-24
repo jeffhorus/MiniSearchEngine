@@ -29,9 +29,9 @@ namespace MiniSearchEngine.Engine
 
             foreach (string s in stopWordList)
             {
-                if (processedData.Contains(s.ToLower()))
+                while (processedData.Contains(s.ToLower()))
                 {
-                    processedData.RemoveAll(x => x.Contains(s.ToLower()));
+                    processedData.Remove(s.ToLower());
                 }
             }
             return processedData;

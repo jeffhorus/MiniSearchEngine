@@ -5,6 +5,7 @@ using System.Text;
 using MiniSearchEngine.Datastructure;
 using System.Data.OleDb;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 namespace MiniSearchEngine.Engine
 {
@@ -360,10 +361,12 @@ namespace MiniSearchEngine.Engine
 
             while ((line = file.ReadLine()) != null)
             {
+                line = Regex.Replace(line, @"\s+", " ");
+
                 char[] separator = { ' ' };
                 string[] splittedNumber = line.Split(separator);
 
-                RelevantJudgement relevantJudgement = new RelevantJudgement(Int32.Parse(splittedNumber[0]), Int32.Parse(splittedNumber[3]));
+                RelevantJudgement relevantJudgement = new RelevantJudgement(Int32.Parse(splittedNumber[0]), Int32.Parse(splittedNumber[1]));
                 relevantJudgementList.Add(relevantJudgement);
             }
             file.Close();
