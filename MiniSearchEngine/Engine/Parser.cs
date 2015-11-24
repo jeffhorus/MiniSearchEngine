@@ -4,29 +4,30 @@ using System.Linq;
 using System.Text;
 using MiniSearchEngine.Datastructure;
 using System.Data.OleDb;
+using System.ComponentModel;
 
 namespace MiniSearchEngine.Engine
 {
     class Parser
     {
-        private List<string> stopWordList;
+        
         private Dictionary<string, int> termOccurenceInCollection;
         private Config config;
         private searchSet.DocumentsDataTable documentDataTable = new searchSet.DocumentsDataTable();
         private searchSet.Document_TermDataTable documentTermDataTable = new searchSet.Document_TermDataTable();
         private searchSet.TermsDataTable termsDataTable = new searchSet.TermsDataTable();
+        private BackgroundWorker progressReporter;
 
-        public Parser(Config config, string stopWordPath)
+        public Parser(Config config, BackgroundWorker reporter)
         {
             this.config = config;
-            stopWordList = new List<string>();
             termOccurenceInCollection = new Dictionary<string, int>();
 
             documentDataTable = new searchSet.DocumentsDataTable();
             documentTermDataTable = new searchSet.Document_TermDataTable();
             termsDataTable = new searchSet.TermsDataTable();
-            
-            getStopWord(stopWordPath);
+
+            progressReporter = reporter;
         }
 
 
@@ -35,6 +36,10 @@ namespace MiniSearchEngine.Engine
             searchSetTableAdapters.DocumentsTableAdapter documentTableAdapter = new searchSetTableAdapters.DocumentsTableAdapter();
             searchSetTableAdapters.Document_TermTableAdapter documentTermTableAdapter = new searchSetTableAdapters.Document_TermTableAdapter();
             searchSetTableAdapters.TermsTableAdapter termTableAdapter = new searchSetTableAdapters.TermsTableAdapter();
+
+            documentTableAdapter.DeleteAll();
+            documentTermTableAdapter.DeleteAll();
+            termTableAdapter.DeleteAll();
 
             searchSet.DocumentsRow doc;
             System.IO.StreamReader file = new System.IO.StreamReader(pathName);
@@ -50,6 +55,7 @@ namespace MiniSearchEngine.Engine
 
             Dictionary<string, int> termOccurenceInDocument = new Dictionary<string, int>();
 
+            int jumlah_dokumen = 0;
 
             while ((line = file.ReadLine()) != null)
             {
@@ -61,8 +67,6 @@ namespace MiniSearchEngine.Engine
                         {
                             if (nowState == 'W')
                             {
-                                Console.WriteLine(number);
-
                                 title = titleBuilder.ToString();
                                 content = contentBuilder.ToString().Trim();
 
@@ -74,7 +78,7 @@ namespace MiniSearchEngine.Engine
                                 allContentsInDocument.Append(authors);
 
                                 List<String> splittedTerms = new List<String>();
-                                splittedTerms = separateData(allContentsInDocument.ToString().ToLower());
+                                splittedTerms = Utility.separateData(allContentsInDocument.ToString().ToLower());
                                 splittedTerms = splittedTerms.Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
 
                                 doc = documentDataTable.NewDocumentsRow();
@@ -83,18 +87,19 @@ namespace MiniSearchEngine.Engine
                                 doc.Content = content;
                                 doc.Authors = authors;
 
+                                
+
                                 documentDataTable.AddDocumentsRow(doc);
 
                                 //documentTableAdapter.Insert(number, title, content, authors.ToString());
 
-                                splittedTerms = removeStopWord(splittedTerms);
+                                splittedTerms = Utility.removeStopWord(splittedTerms);
                                 if (config.stemmingOption == 1)
                                 {
-                                    splittedTerms = stemming(splittedTerms);
+                                    splittedTerms = Utility.stemming(splittedTerms);
                                 }
 
                                 max_term = 0;
-
                                 termOccurenceInDocument = new Dictionary<string, int>();
                                 foreach (string s in splittedTerms)
                                 {
@@ -138,9 +143,12 @@ namespace MiniSearchEngine.Engine
                                     //documentTermTableAdapter.Insert(entry.Key, number, entry.Value);
                                 }
 
+                                jumlah_dokumen++;
+                                progressReporter.ReportProgress(jumlah_dokumen);
+
                                 //termTableAdapter.Update(termsDataTable);
                                 //documentTermTableAdapter.Update(documentTermDataTable);
-                                
+
                             }
 
                             nowState = 'I';
@@ -204,7 +212,7 @@ namespace MiniSearchEngine.Engine
             allContentsInDoc.Append(authors);
 
             List<String> splitTerm = new List<String>();
-            splitTerm = separateData(allContentsInDoc.ToString().ToLower());
+            splitTerm = Utility.separateData(allContentsInDoc.ToString().ToLower());
             splitTerm = splitTerm.Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
 
 
@@ -218,13 +226,15 @@ namespace MiniSearchEngine.Engine
 
             documentDataTable.AddDocumentsRow(doc);
 
-            
+            jumlah_dokumen++;
+            progressReporter.ReportProgress(jumlah_dokumen);
+
             //documentTableAdapter.Insert(number, title, content, authors.ToString());
 
-            splitTerm = removeStopWord(splitTerm);
+            splitTerm = Utility.removeStopWord(splitTerm);
             if (config.stemmingOption == 1)
             {
-                splitTerm = stemming(splitTerm);
+                splitTerm = Utility.stemming(splitTerm);
             }
 
             max_term = 0;
@@ -283,6 +293,7 @@ namespace MiniSearchEngine.Engine
                 }
             }
 
+
             calculateWeight();
 
 
@@ -290,6 +301,16 @@ namespace MiniSearchEngine.Engine
             documentTableAdapter.Update(documentDataTable);
             termTableAdapter.Update(termsDataTable);
             documentTermTableAdapter.Update(documentTermDataTable);
+
+            if (MainForm.doc_config.normalizationOption == 1)
+            {
+                foreach (searchSet.DocumentsRow doc_row in documentDataTable)
+                {
+                    double panjang = (double) documentTermTableAdapter.HitungPanjang(doc_row.ID);
+                    documentTermTableAdapter.NormalisasiWeight(panjang, doc_row.ID);
+                }
+            }
+
             
         }
 
@@ -316,6 +337,8 @@ namespace MiniSearchEngine.Engine
             {
                 return 0.5 + 0.5 * ((double)original / max);
             }
+
+
         }
 
         public void calculateWeight()
@@ -324,6 +347,28 @@ namespace MiniSearchEngine.Engine
             {
                 row.Weight = row.Weight * termsDataTable.FindByTerm(row.Term).IDF;
             }
+
+        }
+
+        public static List<RelevantJudgement> getRelevantJudgement(string pathName)
+        {
+            List<RelevantJudgement> relevantJudgementList = new List<RelevantJudgement>();
+
+            System.IO.StreamReader file = new System.IO.StreamReader(pathName);
+
+            string line;
+
+            while ((line = file.ReadLine()) != null)
+            {
+                char[] separator = { ' ' };
+                string[] splittedNumber = line.Split(separator);
+
+                RelevantJudgement relevantJudgement = new RelevantJudgement(Int32.Parse(splittedNumber[0]), Int32.Parse(splittedNumber[3]));
+                relevantJudgementList.Add(relevantJudgement);
+            }
+            file.Close();
+
+            return relevantJudgementList;
         }
 
         public static List<Query> openQueryFile(string pathName)
@@ -351,7 +396,7 @@ namespace MiniSearchEngine.Engine
                                 content = contentBuilder.ToString().Trim();
 
                                 List<String> splittedTerms = new List<String>();
-                                splittedTerms = separateData(content.ToLower());
+                                splittedTerms = Utility.separateData(content.ToLower());
                                 splittedTerms = splittedTerms.Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
 
                                 Query query = new Query(number, content);
@@ -383,7 +428,7 @@ namespace MiniSearchEngine.Engine
             content = contentBuilder.ToString().Trim();
 
             List<String> splitTerm = new List<String>();
-            splitTerm = separateData(content.ToLower());
+            splitTerm = Utility.separateData(content.ToLower());
             splitTerm = splitTerm.Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
 
             Query query_ = new Query(number, content);
@@ -392,54 +437,5 @@ namespace MiniSearchEngine.Engine
             return queries;
         }
 
-        private void getStopWord(string pathName)
-        {
-            System.IO.StreamReader file = new System.IO.StreamReader(pathName);
-
-            string line;
-            while ((line = file.ReadLine()) != null)
-            {
-                stopWordList.Add(line);
-            }
-
-        }
-
-        private List<string> removeStopWord(List<string> data)
-        {
-            List<string> processedData = new List<string>();
-            processedData.AddRange(data);
-
-            foreach (string s in stopWordList)
-            {
-                processedData.RemoveAll(x => x.Contains(s.ToLower()));
-            }
-            return processedData;
-        }
-
-        private static List<String> separateData(string data)
-        {
-            char[] delimiter = { ' ', ',', '-', '!', '?', '.', '@', '#', '$', '%', '^', '&', '*', '(', ')', '{', '}', '/', ';', ':', '\'', '"'};
-            return new List<string>(data.Split(delimiter));
-        }
-
-        private List<string> stemming(List<string> data)
-        {
-            List<string> processedData = new List<string>();
-            List<string> resultData = new List<string>();
-            processedData.AddRange(data);
-
-            Stemmer stemmer = new Stemmer();
-            foreach (string s in processedData)
-            {
-                char[] processedChar = s.ToCharArray();
-                stemmer.add(processedChar, processedChar.Length);
-                stemmer.stem();
-                String result = stemmer.ToString();
-
-                resultData.Add(result);
-            }
-
-            return resultData;
-        }
     }
 }

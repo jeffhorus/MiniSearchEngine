@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MiniSearchEngine.Datastructure
 {
-    class Config
+    public class Config
     {
         public int tfOption;
         public int idfOption;

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MiniSearchEngine.Datastructure
 {
-    class RelevantJudgement
+    public class RelevantJudgement
     {
         public int queryNumber;
         public int documentNumber;

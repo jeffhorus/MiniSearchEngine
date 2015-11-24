@@ -1,6 +1,6 @@
 ﻿namespace MiniSearchEngine
 {
-    partial class Form1
+    partial class LoaderForm
     {
         /// <summary>
         /// Required designer variable.
@@ -30,13 +30,14 @@
         {
             this.searchSet = new MiniSearchEngine.searchSet();
             this.documentsTableAdapter = new MiniSearchEngine.searchSetTableAdapters.DocumentsTableAdapter();
-            this.document_TermTableAdapter1 = new MiniSearchEngine.searchSetTableAdapters.Document_TermTableAdapter();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.txtFolder = new System.Windows.Forms.TextBox();
+            this.lblProcess = new System.Windows.Forms.Label();
             this.btnFolder = new System.Windows.Forms.Button();
+            this.txtFolder = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             ((System.ComponentModel.ISupportInitialize)(this.searchSet)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -50,14 +51,11 @@
             // 
             this.documentsTableAdapter.ClearBeforeFill = true;
             // 
-            // document_TermTableAdapter1
-            // 
-            this.document_TermTableAdapter1.ClearBeforeFill = true;
-            // 
             // backgroundWorker1
             // 
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
             // 
             // progressBar1
             // 
@@ -68,6 +66,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.lblProcess);
             this.groupBox1.Controls.Add(this.btnFolder);
             this.groupBox1.Controls.Add(this.txtFolder);
             this.groupBox1.Controls.Add(this.label1);
@@ -79,21 +78,13 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Buka Folder";
             // 
-            // label1
+            // lblProcess
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(34, 45);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(93, 20);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Folder Data";
-            // 
-            // txtFolder
-            // 
-            this.txtFolder.Location = new System.Drawing.Point(147, 45);
-            this.txtFolder.Name = "txtFolder";
-            this.txtFolder.Size = new System.Drawing.Size(665, 26);
-            this.txtFolder.TabIndex = 2;
+            this.lblProcess.AutoSize = true;
+            this.lblProcess.Location = new System.Drawing.Point(35, 117);
+            this.lblProcess.Name = "lblProcess";
+            this.lblProcess.Size = new System.Drawing.Size(0, 20);
+            this.lblProcess.TabIndex = 4;
             // 
             // btnFolder
             // 
@@ -105,7 +96,24 @@
             this.btnFolder.UseVisualStyleBackColor = true;
             this.btnFolder.Click += new System.EventHandler(this.button1_Click);
             // 
-            // Form1
+            // txtFolder
+            // 
+            this.txtFolder.Location = new System.Drawing.Point(147, 45);
+            this.txtFolder.Name = "txtFolder";
+            this.txtFolder.Size = new System.Drawing.Size(665, 26);
+            this.txtFolder.TabIndex = 2;
+            this.txtFolder.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtFolder_KeyPress);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(34, 45);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(93, 20);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Folder Data";
+            // 
+            // LoaderForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -113,7 +121,7 @@
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.Name = "Form1";
+            this.Name = "LoaderForm";
             this.Text = "Mini Search Engine Configurator";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.searchSet)).EndInit();
@@ -127,13 +135,14 @@
 
         private searchSet searchSet;
         private searchSetTableAdapters.DocumentsTableAdapter documentsTableAdapter;
-        private searchSetTableAdapters.Document_TermTableAdapter document_TermTableAdapter1;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button btnFolder;
         private System.Windows.Forms.TextBox txtFolder;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.Label lblProcess;
     }
 }
 

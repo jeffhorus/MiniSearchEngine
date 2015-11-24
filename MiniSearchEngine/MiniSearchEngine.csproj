@@ -15,7 +15,7 @@
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -46,29 +46,65 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configurator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configurator.Designer.cs">
+      <DependentUpon>Configurator.cs</DependentUpon>
+    </Compile>
     <Compile Include="Datastructure\Config.cs" />
+    <Compile Include="Datastructure\ConfigFeedback.cs" />
     <Compile Include="Datastructure\Document.cs" />
     <Compile Include="Datastructure\Query.cs" />
     <Compile Include="Datastructure\RelevantJudgement.cs" />
     <Compile Include="Engine\Parser.cs" />
+    <Compile Include="Engine\RelevantFeedback.cs" />
+    <Compile Include="Engine\Retrival.cs" />
     <Compile Include="Engine\Stemmer.cs" />
     <Compile Include="Engine\Utility.cs" />
-    <Compile Include="Form1.cs">
+    <Compile Include="Feedback.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Feedback.Designer.cs">
+      <DependentUpon>Feedback.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LoaderForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LoaderForm.Designer.cs">
+      <DependentUpon>LoaderForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Main.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="searchSet.Designer.cs">
+    <Compile Include="QueryLoader.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="QueryLoader.Designer.cs">
+      <DependentUpon>QueryLoader.cs</DependentUpon>
+    </Compile>
+    <Compile Include="searchSet1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>searchSet.xsd</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="Configurator.resx">
+      <DependentUpon>Configurator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Feedback.resx">
+      <DependentUpon>Feedback.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LoaderForm.resx">
+      <DependentUpon>LoaderForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -79,6 +115,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="QueryLoader.resx">
+      <DependentUpon>QueryLoader.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -94,8 +133,8 @@
     </None>
     <None Include="searchSet.xsd">
       <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>searchSet.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>searchSet1.Designer.cs</LastGenOutput>
     </None>
     <None Include="searchSet.xss">
       <DependentUpon>searchSet.xsd</DependentUpon>
@@ -103,6 +142,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="db.accdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="stopword.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
