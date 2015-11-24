@@ -59,9 +59,10 @@
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(34, 144);
+            this.progressBar1.Location = new System.Drawing.Point(23, 94);
+            this.progressBar1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(853, 48);
+            this.progressBar1.Size = new System.Drawing.Size(569, 31);
             this.progressBar1.TabIndex = 0;
             // 
             // groupBox1
@@ -71,9 +72,11 @@
             this.groupBox1.Controls.Add(this.txtFolder);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.progressBar1);
-            this.groupBox1.Location = new System.Drawing.Point(25, 22);
+            this.groupBox1.Location = new System.Drawing.Point(17, 14);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(910, 222);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Size = new System.Drawing.Size(607, 144);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Buka Folder";
@@ -81,16 +84,18 @@
             // lblProcess
             // 
             this.lblProcess.AutoSize = true;
-            this.lblProcess.Location = new System.Drawing.Point(35, 117);
+            this.lblProcess.Location = new System.Drawing.Point(23, 76);
+            this.lblProcess.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblProcess.Name = "lblProcess";
-            this.lblProcess.Size = new System.Drawing.Size(0, 20);
+            this.lblProcess.Size = new System.Drawing.Size(0, 13);
             this.lblProcess.TabIndex = 4;
             // 
             // btnFolder
             // 
-            this.btnFolder.Location = new System.Drawing.Point(818, 43);
+            this.btnFolder.Location = new System.Drawing.Point(545, 28);
+            this.btnFolder.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnFolder.Name = "btnFolder";
-            this.btnFolder.Size = new System.Drawing.Size(69, 29);
+            this.btnFolder.Size = new System.Drawing.Size(46, 19);
             this.btnFolder.TabIndex = 3;
             this.btnFolder.Text = "...";
             this.btnFolder.UseVisualStyleBackColor = true;
@@ -98,29 +103,31 @@
             // 
             // txtFolder
             // 
-            this.txtFolder.Location = new System.Drawing.Point(147, 45);
+            this.txtFolder.Location = new System.Drawing.Point(98, 29);
+            this.txtFolder.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtFolder.Name = "txtFolder";
-            this.txtFolder.Size = new System.Drawing.Size(665, 26);
+            this.txtFolder.Size = new System.Drawing.Size(445, 20);
             this.txtFolder.TabIndex = 2;
+            this.txtFolder.TextChanged += new System.EventHandler(this.txtFolder_TextChanged);
             this.txtFolder.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtFolder_KeyPress);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(34, 45);
+            this.label1.Location = new System.Drawing.Point(23, 29);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(93, 20);
+            this.label1.Size = new System.Drawing.Size(62, 13);
             this.label1.TabIndex = 1;
             this.label1.Text = "Folder Data";
             // 
             // LoaderForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(965, 270);
+            this.ClientSize = new System.Drawing.Size(643, 175);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "LoaderForm";
             this.Text = "Mini Search Engine Configurator";
             this.Load += new System.EventHandler(this.Form1_Load);

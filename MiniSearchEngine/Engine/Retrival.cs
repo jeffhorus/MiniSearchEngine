@@ -98,7 +98,7 @@ namespace MiniSearchEngine.Engine
                     }
                 }
             }
-
+            if (number_relevant == 0) return 0;
             return sum_precision / number_relevant;
         }
 

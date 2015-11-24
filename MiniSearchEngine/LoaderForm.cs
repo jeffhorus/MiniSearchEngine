@@ -60,5 +60,10 @@ namespace MiniSearchEngine
                 backgroundWorker1.RunWorkerAsync();
             }
         }
+
+        private void txtFolder_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
