@@ -56,6 +56,7 @@ namespace MiniSearchEngine.Engine
                     sum_relevant++;
             }
 
+            if (relevant.Count == 0) return 0;
             return (double)sum_relevant / (double)relevant.Count;
         }
 
@@ -76,6 +77,7 @@ namespace MiniSearchEngine.Engine
                     sum_relevant++;
             }
 
+            if (result.Count == 0) return 0;
             return (double)sum_relevant / (double)result.Count;
         }
 

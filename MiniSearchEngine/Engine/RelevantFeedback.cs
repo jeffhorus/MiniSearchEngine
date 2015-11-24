@@ -144,17 +144,17 @@ namespace MiniSearchEngine.Engine
             }
 
 
-            foreach (KeyValuePair<string, double> entry in query.terms)
+            /*foreach (KeyValuePair<string, double> entry in query.terms)
             {
                 Console.WriteLine(entry.Key + " --> " + entry.Value);
-            }
+            }*/
 
 
         }
 
         private void printLists()
         {
-            Console.WriteLine("REL: ");
+            /*Console.WriteLine("REL: ");
             foreach ( int l in relevant_doc)
             {
                 Console.WriteLine(l + ", ");
@@ -164,7 +164,7 @@ namespace MiniSearchEngine.Engine
             foreach (int l in irelevant_doc)
             {
                 Console.WriteLine(l + ", ");
-            }
+            }*/
 
         }
     }

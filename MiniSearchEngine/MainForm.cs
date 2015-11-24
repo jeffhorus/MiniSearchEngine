@@ -21,6 +21,9 @@ namespace MiniSearchEngine
         private List<RelevantJudgement> relevant_judgement;
         private Dictionary<int, double> result;
 
+        private double niap_1_total = 0;
+        private double niap_2_total = 0;
+
         private Query current_query;
 
         public MainForm()
@@ -46,147 +49,75 @@ namespace MiniSearchEngine
                 cmbQuery.Items.Add("Query " + i);
             }
 
-            /* UNTUK MENAMPILKAN SELURUH DATA DENGAN FORMAT no_q;precision;recall;niap */
-            int id = 0;
-            double sum_niap = 0;
-            txtAnalysis.AppendText("Document Number;Precision;Recall;Non-Interpolated Average Precision\r\n");
-            foreach (Query current_query in queries)
-            {
-                current_query.preprocessQuery();
-                current_query.calculateTerms();
-                int _query = id + 1;
+            //MethodInvoker myProcessStarter = new MethodInvoker(generateSecondRetrieval);
 
-                /* add to result */
-                int counter = 0;
-                Dictionary<int, double> result = Retrival.retrive(current_query);
+            //myProcessStarter.BeginInvoke(null, null);
 
-                //listResults.Items.Clear();
+            //generateSecondRetrieval();
 
-                var items = from pair in result orderby pair.Value descending select pair;
-                this.result = new Dictionary<int, double>();
-                foreach (KeyValuePair<int, double> entry in items)
-                {
-                    //listResults.Items.Add("Document " + entry.Key);
-                    this.result.Add(entry.Key, entry.Value);
+            generateSecondRetrieval();
+        }
 
-                    if (MainForm.feedback_config.mode == 0)
-                    {
-                        counter++;
-                        if (counter == feedback_config.tops) break;
-                    }
-                }
+        private void generateSecondRetrieval()
+        {
+            bool isbreak = false;
 
-                /* print results */
-                double current_niap = Retrival.calculateNIAP(relevant_judgement, this.result, id);
-                sum_niap += current_niap;
-                txtAnalysis.AppendText(_query + ";");
-                txtAnalysis.AppendText(Retrival.calculateRecall(relevant_judgement, result, id) + ";");
-                txtAnalysis.AppendText(Retrival.calculatePrecision(relevant_judgement, result, id) + ";");
-                txtAnalysis.AppendText(current_niap + "\r\n");
+            //for (int algorithm = 0; algorithm <= 2 && !isbreak; algorithm++)
+            //{
+            //    for (int pseudo = 0; pseudo <= 1 && !isbreak; pseudo++)
+            //    {
+            //        for (int samecoll = 0; samecoll <= 1 && !isbreak; samecoll++)
+            //        {
+            //            for (int expand = 0; expand <= 1 && !isbreak; expand++)
+            //            {
+                            int id = 0;
+                            niap_1_total = 0;
+                            niap_2_total = 0;
 
-                id++;
-            }
-            txtAnalysis.AppendText(";;Average of Non-Interpolated Average Precision;" + sum_niap/(double)queries.Count + "\r\n");
+            int algorithm = 2;
+            int pseudo = 1;
+            int samecoll = 0;
+            int expand = 1;
 
-            /* MENAMPILKAN SELURUH HASIL FEEDBACK */
-            id = 0;
-            sum_niap = 0;
-            txtAnalysis.AppendText("Document Number;Precision;Recall;Non-Interpolated Average Precision\r\n");
-            foreach (Query current_query in queries)
-            {
-                RelevantFeedback rel;
-                if (feedback_config.pseudo == 1)
-                {
-                    rel = new RelevantFeedback(this.result);
-                }
-                else
-                {
-                    if (feedback_config.mode == 0)
-                    {
-                        rel = new RelevantFeedback(relevant_judgement, this.result, id);
+                            feedback_config = new ConfigFeedback(0, algorithm, pseudo, feedback_config.topn, feedback_config.tops, samecoll, expand);
+                            string kombinasi = algorithm + ", " + pseudo + ", " + samecoll + ", " + expand;
+                            Console.WriteLine("working on : " + kombinasi);
+                            txtAnalysis.AppendText("\r\nKombinasi : " + kombinasi + "\r\n");
+                            txtAnalysis.AppendText("Query Number;Recall;Precision;Non-Interpolated Average Precision;;Query Number;Recall;Precision;Non-Interpolated Average Precision\r\n");
+                            foreach (Query current_query in queries)
+                            {
+                                cmbQuery.SelectedIndex = id;
+                                button2_Click(new object(), new EventArgs());
+                                id++;
+                                Console.WriteLine("query : " + id);
+                            }
+                            txtAnalysis.AppendText("Average Non-Interpolated Average Precision;;;" + niap_1_total / queries.Count);
+                            txtAnalysis.AppendText(";;Average Non-Interpolated Average Precision;;;" + niap_2_total / queries.Count);
 
-                    }
-                    else
-                    {
-                        rel = new RelevantFeedback(listResults);
-
-                    }
-                }
-
-                rel.applyAlgorithm(current_query);
-
-
-                //retrive_current_query((MainForm.feedback_config.usesamecol == 0));
-                int counter = 0;
-                Dictionary<int, double> result = Retrival.retrive(current_query);
-
-
-                if (MainForm.feedback_config.usesamecol == 0)
-                {
-                    foreach (string _id in listResults.Items)
-                    {
-                        result.Remove(Utility.getDocumentID(_id));
-                    }
-
-                }
-
-                var items = from pair in result orderby pair.Value descending select pair;
-                this.result = new Dictionary<int, double>();
-                foreach (KeyValuePair<int, double> entry in items)
-                {
-                    this.result.Add(entry.Key, entry.Value);
-
-                    if (MainForm.feedback_config.mode == 0)
-                    {
-                        counter++;
-                        if (counter == feedback_config.tops) break;
-                    }
-                }
-
-                if (feedback_config.mode == 0)
-                {
-                    txtAnalysis.AppendText(id+1 + ";");
-                    txtAnalysis.AppendText(Retrival.calculateRecall(relevant_judgement, result, id) + ";");
-                    txtAnalysis.AppendText(Retrival.calculatePrecision(relevant_judgement, result, id) + ";");
-                    txtAnalysis.AppendText(Retrival.calculateNIAP(relevant_judgement, this.result, id) + "\r\n");
-                }
-
-                //MessageBox.Show("Hasil pencarian sudah diperbaharui dengan FeedBack");
-                id++;
-            }
-            txtAnalysis.AppendText(";;Average of Non-Interpolated Average Precision;" + sum_niap / (double)queries.Count + "\r\n");
-            MessageBox.Show("Done");
+                            MessageBox.Show("Selesai untuk konfigurasi : " + kombinasi);
+                            
+        //                }
+        //            }
+        //        }
+        //    }
         }
 
         private void cmbQuery_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //MessageBox.Show(queries[cmbQuery.SelectedIndex].content);
-            txtAnalysis.AppendText("Searching for query: ");
-            txtAnalysis.AppendText(queries[cmbQuery.SelectedIndex].content);
-            
             current_query = queries[cmbQuery.SelectedIndex];
 
             current_query.preprocessQuery();
             current_query.calculateTerms();
             int _query = cmbQuery.SelectedIndex + 1;
-
-            txtAnalysis.AppendText("  Relevant Docs: \r\n");
-            foreach (RelevantJudgement rel in relevant_judgement)
-            {
-                if (rel.queryNumber == _query)
-                    txtAnalysis.AppendText("   - D" + rel.documentNumber + "\r\n");
-            }
-
-
-            txtAnalysis.AppendText("\r\n\r\nResult:\r\n");
+            
             retrive_current_query(false);
 
-
-            txtAnalysis.AppendText("---------------------------\r\n");
-            txtAnalysis.AppendText("Recall = " + Retrival.calculateRecall(relevant_judgement, result, cmbQuery.SelectedIndex) + "\r\n");
-            txtAnalysis.AppendText("Precision = " + Retrival.calculatePrecision(relevant_judgement, result, cmbQuery.SelectedIndex) + "\r\n");
-            txtAnalysis.AppendText("NIAP = " + Retrival.calculateNIAP(relevant_judgement, this.result, cmbQuery.SelectedIndex) + "\r\n");
-            txtAnalysis.AppendText("---------------------------\r\n");
+            
+            txtAnalysis.AppendText(_query + ";" + Retrival.calculateRecall(relevant_judgement, result, cmbQuery.SelectedIndex) + ";");
+            txtAnalysis.AppendText(Retrival.calculatePrecision(relevant_judgement, result, cmbQuery.SelectedIndex) + ";");
+            double current_niap = Retrival.calculateNIAP(relevant_judgement, result, cmbQuery.SelectedIndex);
+            niap_1_total += current_niap;
+            txtAnalysis.AppendText( current_niap + ";");
         }
 
         private void retrive_current_query(bool uniq)
@@ -210,7 +141,6 @@ namespace MiniSearchEngine
             this.result = new Dictionary<int, double>();
             foreach (KeyValuePair<int, double> entry in items)
             {
-                txtAnalysis.AppendText("Document " + entry.Key + ", score: " + entry.Value + "\n");
                 listResults.Items.Add("Document " + entry.Key);
                 this.result.Add(entry.Key, entry.Value);
 
@@ -259,13 +189,6 @@ namespace MiniSearchEngine
             if (feedback_config.mode == 0)
             {
                 int _query = cmbQuery.SelectedIndex + 1;
-                txtAnalysis.AppendText("\r\n  Relevant Docs: \r\n");
-                foreach (RelevantJudgement relv in relevant_judgement)
-                {
-                    if (relv.queryNumber == _query)
-                        txtAnalysis.AppendText("    D" + relv.documentNumber + "\r\n");
-                }
-                txtAnalysis.AppendText("     --------\r\n\r\n Retrive results:\r\n");
             }
             else
             {
@@ -284,14 +207,14 @@ namespace MiniSearchEngine
 
             if (feedback_config.mode == 0)
             {
-                txtAnalysis.AppendText("---------------------------\r\n");
-                txtAnalysis.AppendText("Recall = " + Retrival.calculateRecall(relevant_judgement, result, cmbQuery.SelectedIndex) + "\r\n");
-                txtAnalysis.AppendText("Precision = " + Retrival.calculatePrecision(relevant_judgement, result, cmbQuery.SelectedIndex) + "\r\n");
-                txtAnalysis.AppendText("NIAP = " + Retrival.calculateNIAP(relevant_judgement, this.result, cmbQuery.SelectedIndex) + "\r\n");
-                txtAnalysis.AppendText("---------------------------\r\n");
+                txtAnalysis.AppendText(";" + (cmbQuery.SelectedIndex+1) + ";" + Retrival.calculateRecall(relevant_judgement, result, cmbQuery.SelectedIndex) + ";");
+                txtAnalysis.AppendText(Retrival.calculatePrecision(relevant_judgement, result, cmbQuery.SelectedIndex) + ";");
+                double current_niap = Retrival.calculateNIAP(relevant_judgement, result, cmbQuery.SelectedIndex);
+                txtAnalysis.AppendText(current_niap + "\r\n");
+                niap_2_total += current_niap;
             }
 
-            MessageBox.Show("Hasil pencarian sudah diperbaharui dengan FeedBack");
+            //MessageBox.Show("Hasil pencarian sudah diperbaharui dengan FeedBack");
         }
         
 
