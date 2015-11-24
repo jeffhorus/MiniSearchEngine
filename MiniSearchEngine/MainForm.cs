@@ -143,6 +143,8 @@ namespace MiniSearchEngine
                 }
             }
 
+            rel.applyAlgorithm(current_query);
+
             if (feedback_config.mode == 0)
             {
                 int _query = cmbQuery.SelectedIndex + 1;
@@ -166,7 +168,7 @@ namespace MiniSearchEngine
             }
 
 
-            rel.applyAlgorithm(current_query);
+            
             retrive_current_query((MainForm.feedback_config.usesamecol == 0));
 
             if (feedback_config.mode == 0)
