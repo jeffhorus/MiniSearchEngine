@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -13,8 +14,8 @@ namespace MiniSearchEngine
 {
     public partial class MainForm : Form
     {
-        public static Config doc_config = new Config(1, 1, 1, 1);
-        public static Config query_config = new Config(1, 1, 1, 1);
+        public static Config doc_config = new Config(1, 0, 0, 0);
+        public static Config query_config = new Config(1, 0, 0, 0);
         public static ConfigFeedback feedback_config = new ConfigFeedback(0, 0, 0, 10, 25, 1, 0);
 
         private List<Query> queries;
@@ -49,35 +50,31 @@ namespace MiniSearchEngine
                 cmbQuery.Items.Add("Query " + i);
             }
 
-            //MethodInvoker myProcessStarter = new MethodInvoker(generateSecondRetrieval);
+            MethodInvoker myProcessStarter = new MethodInvoker(generateSecondRetrieval);
 
-            //myProcessStarter.BeginInvoke(null, null);
+            myProcessStarter.BeginInvoke(null, null);
 
             //generateSecondRetrieval();
 
-            generateSecondRetrieval();
+            //generateSecondRetrieval();
         }
 
         private void generateSecondRetrieval()
         {
             bool isbreak = false;
 
-            //for (int algorithm = 0; algorithm <= 2 && !isbreak; algorithm++)
-            //{
-            //    for (int pseudo = 0; pseudo <= 1 && !isbreak; pseudo++)
-            //    {
-            //        for (int samecoll = 0; samecoll <= 1 && !isbreak; samecoll++)
-            //        {
-            //            for (int expand = 0; expand <= 1 && !isbreak; expand++)
-            //            {
+            for (int algorithm = 0; algorithm <= 2 && !isbreak; algorithm++)
+            {
+                for (int pseudo = 0; pseudo <= 1 && !isbreak; pseudo++)
+                {
+                    for (int samecoll = 0; samecoll <= 1 && !isbreak; samecoll++)
+                    {
+                        for (int expand = 0; expand <= 1 && !isbreak; expand++)
+                        {
                             int id = 0;
                             niap_1_total = 0;
                             niap_2_total = 0;
-
-            int algorithm = 2;
-            int pseudo = 1;
-            int samecoll = 0;
-            int expand = 1;
+                            
 
                             feedback_config = new ConfigFeedback(0, algorithm, pseudo, feedback_config.topn, feedback_config.tops, samecoll, expand);
                             string kombinasi = algorithm + ", " + pseudo + ", " + samecoll + ", " + expand;
@@ -87,19 +84,26 @@ namespace MiniSearchEngine
                             foreach (Query current_query in queries)
                             {
                                 cmbQuery.SelectedIndex = id;
-                                button2_Click(new object(), new EventArgs());
+                                generatePerformance();
                                 id++;
                                 Console.WriteLine("query : " + id);
+                                //break;
                             }
                             txtAnalysis.AppendText("Average Non-Interpolated Average Precision;;;" + niap_1_total / queries.Count);
                             txtAnalysis.AppendText(";;Average Non-Interpolated Average Precision;;;" + niap_2_total / queries.Count);
 
-                            MessageBox.Show("Selesai untuk konfigurasi : " + kombinasi);
-                            
-        //                }
-        //            }
-        //        }
-        //    }
+                            FileStream fs = new FileStream("out.csv", FileMode.Append, FileAccess.Write);
+
+                            using (StreamWriter sw = new StreamWriter(fs))
+                            {
+                                sw.WriteLine(txtAnalysis.Text);
+                            }
+
+                            txtAnalysis.ResetText();
+                        }
+                    }
+                }
+            }
         }
 
         private void cmbQuery_SelectedIndexChanged(object sender, EventArgs e)
@@ -216,7 +220,60 @@ namespace MiniSearchEngine
 
             //MessageBox.Show("Hasil pencarian sudah diperbaharui dengan FeedBack");
         }
-        
+
+        private void generatePerformance()
+        {
+            RelevantFeedback rel;
+            if (feedback_config.pseudo == 1)
+            {
+                rel = new RelevantFeedback(result);
+            }
+            else
+            {
+                if (feedback_config.mode == 0)
+                {
+                    rel = new RelevantFeedback(relevant_judgement, result, cmbQuery.SelectedIndex);
+
+                }
+                else
+                {
+                    rel = new RelevantFeedback(listResults);
+
+                }
+            }
+
+            rel.applyAlgorithm(current_query);
+
+            if (feedback_config.mode == 0)
+            {
+                int _query = cmbQuery.SelectedIndex + 1;
+            }
+            else
+            {
+                //txtAnalysis.AppendText("\r\n -- NEW WEIGHT --\r\n");
+                //foreach (KeyValuePair<string, double> entry in current_query.terms)
+                //{
+                //    txtAnalysis.AppendText(entry.Key + " --> " + entry.Value + "\r\n");
+                //}
+                //txtAnalysis.AppendText("     --------\r\n\r\n Retrive results:\r\n");
+
+            }
+
+
+
+            retrive_current_query((MainForm.feedback_config.usesamecol == 0));
+
+            if (feedback_config.mode == 0)
+            {
+                txtAnalysis.AppendText(";" + (cmbQuery.SelectedIndex + 1) + ";" + Retrival.calculateRecall(relevant_judgement, result, cmbQuery.SelectedIndex) + ";");
+                txtAnalysis.AppendText(Retrival.calculatePrecision(relevant_judgement, result, cmbQuery.SelectedIndex) + ";");
+                double current_niap = Retrival.calculateNIAP(relevant_judgement, result, cmbQuery.SelectedIndex);
+                txtAnalysis.AppendText(current_niap + "\r\n");
+                niap_2_total += current_niap;
+            }
+
+        }
+
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
